@@ -22,11 +22,14 @@ package org.kde.kdroid.sms;
 import org.kde.kdroid.net.Packet;
 import org.kde.kdroid.net.Port;
 
+import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.telephony.PhoneNumberUtils;
@@ -48,28 +51,49 @@ public class SMSHandler {
 
 	public void sendSMS(SMSMessage message) {
 		Log.d("KDroid", "Sending SMS");
-		String address = message.Address;
-		String body = message.Body;
+		final String address = message.Address;
+		final String body = message.Body;
+		final String time = message.Time;
 
-		// Send the Message
-		PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(
-				context, SMSHandler.class), 0);
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent("SMS_SENT"), 0);
+		
+        context.registerReceiver(new BroadcastReceiver(){
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                switch (getResultCode())
+                {
+                    case Activity.RESULT_OK:
+                		ContentValues values = new ContentValues();
+                		values.put("address", address);
+                		values.put("date", time);
+                		values.put("read", 1);
+                		values.put("status", -1);
+                		values.put("type", 2);
+                		values.put("body", body);
+                    	cr.insert(Uri.parse("content://sms"), values);
+                		Packet packet = new Packet("Status");
+                		packet.addArgument("SMSSend");
+                		port.send(packet);
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+
+                        break;
+                }
+                context.unregisterReceiver(this);
+            }
+        }, new IntentFilter("SMS_SENT"));
+        
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(address, null, body, pi, null);
-
-		// Save the Message in the Database
-		ContentValues values = new ContentValues();
-		values.put("address", address);
-		values.put("date", message.Time);
-		values.put("read", 1);
-		values.put("status", -1);
-		values.put("type", 2);
-		values.put("body", body);
-		cr.insert(Uri.parse("content://sms"), values);
-
-		Packet packet = new Packet("Status");
-		packet.addArgument("SMSSend");
-		port.send(packet);
 	}
 
 	public void returnAllMessages() {
