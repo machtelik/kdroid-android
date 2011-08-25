@@ -43,9 +43,9 @@ public class SMSHandler {
 
 	Port port;
 
-	public SMSHandler(Context context, Port port) {
-		this.port = port;
-		this.context = context;
+	public SMSHandler(Context Context, Port Port) {
+		this.port = Port;
+		this.context = Context;
 		cr = context.getContentResolver();
 	}
 
@@ -55,43 +55,44 @@ public class SMSHandler {
 		final String body = message.Body;
 		final String time = message.Time;
 
-		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent("SMS_SENT"), 0);
-		
-        context.registerReceiver(new BroadcastReceiver(){
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (getResultCode())
-                {
-                    case Activity.RESULT_OK:
-                		ContentValues values = new ContentValues();
-                		values.put("address", address);
-                		values.put("date", time);
-                		values.put("read", 1);
-                		values.put("status", -1);
-                		values.put("type", 2);
-                		values.put("body", body);
-                    	cr.insert(Uri.parse("content://sms"), values);
-                		Packet packet = new Packet("Status");
-                		packet.addArgument("SMSSend");
-                		port.send(packet);
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(
+				"SMS_SENT"), 0);
 
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+		context.registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+				switch (getResultCode()) {
+				case Activity.RESULT_OK:
+					ContentValues values = new ContentValues();
+					values.put("address", address);
+					values.put("date", time);
+					values.put("read", 1);
+					values.put("status", -1);
+					values.put("type", 2);
+					values.put("body", body);
+					cr.insert(Uri.parse("content://sms"), values);
+					Packet packet = new Packet("Status");
+					packet.addArgument("SMSSend");
+					port.send(packet);
+					returnLatestSMS(address);
+					break;
+				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
+					break;
+				case SmsManager.RESULT_ERROR_NO_SERVICE:
 
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+					break;
+				case SmsManager.RESULT_ERROR_NULL_PDU:
 
-                        break;
-                }
-                context.unregisterReceiver(this);
-            }
-        }, new IntentFilter("SMS_SENT"));
-        
+					break;
+				case SmsManager.RESULT_ERROR_RADIO_OFF:
+
+					break;
+				}
+				context.unregisterReceiver(this);
+			}
+		}, new IntentFilter("SMS_SENT"));
+
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(address, null, body, pi, null);
 	}
@@ -110,6 +111,43 @@ public class SMSHandler {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void returnLatestSMS(String Address) {
+		Log.d("KDroid", "Returning Latest SMS");
+
+		final Cursor c = cr.query(Uri.parse("content://sms"), null, null, null,
+				"date DESC");
+
+		while (c.moveToNext()) {
+
+			String address = c.getString(c.getColumnIndex("address"));
+
+			if (PhoneNumberUtils.compare(address, Address)) {
+
+				SMSMessage message = new SMSMessage();
+
+				int ID = c.getInt(c.getColumnIndex("_id"));
+				int threadID = c.getInt(c.getColumnIndex("thread_id"));
+				long then = c.getLong(c.getColumnIndex("date"));
+				int person = c.getInt(c.getColumnIndex("person"));
+				String body = c.getString(c.getColumnIndex("body"));
+
+				message.Id = Integer.toString(ID);
+				message.ThreadId = Integer.toString(threadID);
+				message.PersonId = Integer.toString(person);
+				message.Body = body;
+				message.Address = PhoneNumberUtils.formatNumber(address);
+				message.Time = String.valueOf(then);
+				message.Type = "Incoming";
+
+				returnSMS(message);
+				break;
+			}
+
+		}
+
+		c.close();
 	}
 
 	public void returnMessagesInbox() {
