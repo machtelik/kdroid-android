@@ -48,11 +48,6 @@ public class KDroidService extends Service {
 		public void setPort(int Port) throws RemoteException {
 			port.setPort(Port);
 		}
-
-		@Override
-		public void returnLatestMessage(String address) throws RemoteException {
-			sms.returnLatestSMS(address);			
-		}
 		
 	};
 

@@ -186,48 +186,6 @@ public class SMSHandler {
 		c.close();
 		return id;
 	}
-
-	public void returnLatestSMS(String Address) {
-		Log.d("KDroid", "Returning Latest SMS");
-
-		final Cursor c = cr.query(Uri.parse("content://sms"), null, null, null,
-				"date DESC");
-
-		while (c.moveToNext()) {
-
-			String address = c.getString(c.getColumnIndex("address"));
-
-			if (PhoneNumberUtils.compare(address, Address)) {
-
-				SMSMessage message = new SMSMessage();
-
-				int ID = c.getInt(c.getColumnIndex("_id"));
-				int threadID = c.getInt(c.getColumnIndex("thread_id"));
-				long then = c.getLong(c.getColumnIndex("date"));
-				int person = c.getInt(c.getColumnIndex("person"));
-				String body = c.getString(c.getColumnIndex("body"));
-				int type  = c.getInt(c.getColumnIndex("type"));
-
-				message.Id = Integer.toString(ID);
-				message.ThreadId = Integer.toString(threadID);
-				message.PersonId = Integer.toString(person);
-				message.Body = body;
-				message.Address = PhoneNumberUtils.formatNumber(address);
-				message.Time = String.valueOf(then);
-				if(type==1) {
-					message.Type = OUT;
-				} else {
-					message.Type = IN;
-				}
-
-				returnSMS(message);
-				break;
-			}
-
-		}
-
-		c.close();
-	}
 	
 	public void returnSMS(SMSMessage message) {
 		Packet packet = new Packet(message);
