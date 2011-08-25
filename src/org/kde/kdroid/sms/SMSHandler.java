@@ -32,8 +32,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 
 public class SMSHandler {
@@ -42,11 +44,33 @@ public class SMSHandler {
 	Context context;
 
 	Port port;
+	
+	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 
 	public SMSHandler(Context Context, Port Port) {
 		this.port = Port;
 		this.context = Context;
 		cr = context.getContentResolver();
+		context.registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context arg0, Intent intent) {
+				if (intent.getAction().equals(SMS_RECEIVED)) {
+                    Bundle bundle = intent.getExtras();
+                    if (bundle != null) {
+                        Object[] pdus = (Object[])bundle.get("pdus");
+                        final SmsMessage[] messages = new SmsMessage[pdus.length];
+                        for (int i = 0; i < pdus.length; i++) {
+                            messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                            String address = messages[i].getDisplayOriginatingAddress();
+                            //FIXME: wait till sms are saved
+                            returnLatestSMS(address);
+                        }
+                        Log.d("KDroid", "Message recieved");
+                    }
+                }
+
+			}
+		}, new IntentFilter(SMS_RECEIVED));
 	}
 
 	public void sendSMS(SMSMessage message) {
@@ -99,8 +123,38 @@ public class SMSHandler {
 
 	public void returnAllMessages() {
 		Log.d("KDroid", "Returning All SMS");
-		returnMessagesInbox();
-		returnMessagesOutbox();
+		final Cursor c = cr.query(Uri.parse("content://sms"), null, null,
+				null, null);
+
+		while (c.moveToNext()) {
+
+			SMSMessage message = new SMSMessage();
+
+			int ID = c.getInt(c.getColumnIndex("_id"));
+			int threadID = c.getInt(c.getColumnIndex("thread_id"));
+			long then = c.getLong(c.getColumnIndex("date"));
+			int person = c.getInt(c.getColumnIndex("person"));
+			String address = c.getString(c.getColumnIndex("address"));
+			String body = c.getString(c.getColumnIndex("body"));
+			int type  = c.getInt(c.getColumnIndex("type"));
+
+			message.Id = Integer.toString(ID);
+			message.ThreadId = Integer.toString(threadID);
+			message.PersonId = Integer.toString(person);
+			message.Body = body;
+			message.Address = PhoneNumberUtils.formatNumber(address);
+			message.Time = String.valueOf(then);
+			if(type==1) {
+				message.Type = "Incoming";
+			} else {
+				message.Type = "Outgoing";
+			}
+
+			returnSMS(message);
+
+		}
+
+		c.close();
 	}
 
 	public void returnSMS(SMSMessage message) {
@@ -132,6 +186,7 @@ public class SMSHandler {
 				long then = c.getLong(c.getColumnIndex("date"));
 				int person = c.getInt(c.getColumnIndex("person"));
 				String body = c.getString(c.getColumnIndex("body"));
+				int type  = c.getInt(c.getColumnIndex("type"));
 
 				message.Id = Integer.toString(ID);
 				message.ThreadId = Integer.toString(threadID);
@@ -139,7 +194,11 @@ public class SMSHandler {
 				message.Body = body;
 				message.Address = PhoneNumberUtils.formatNumber(address);
 				message.Time = String.valueOf(then);
-				message.Type = "Incoming";
+				if(type==1) {
+					message.Type = "Incoming";
+				} else {
+					message.Type = "Outgoing";
+				}
 
 				returnSMS(message);
 				break;
@@ -148,68 +207,6 @@ public class SMSHandler {
 		}
 
 		c.close();
-	}
-
-	public void returnMessagesInbox() {
-
-		final Cursor c = cr.query(Uri.parse("content://sms/inbox"), null, null,
-				null, null);
-
-		while (c.moveToNext()) {
-
-			SMSMessage message = new SMSMessage();
-
-			int ID = c.getInt(c.getColumnIndex("_id"));
-			int threadID = c.getInt(c.getColumnIndex("thread_id"));
-			long then = c.getLong(c.getColumnIndex("date"));
-			int person = c.getInt(c.getColumnIndex("person"));
-			String address = c.getString(c.getColumnIndex("address"));
-			String body = c.getString(c.getColumnIndex("body"));
-
-			message.Id = Integer.toString(ID);
-			message.ThreadId = Integer.toString(threadID);
-			message.PersonId = Integer.toString(person);
-			message.Body = body;
-			message.Address = PhoneNumberUtils.formatNumber(address);
-			message.Time = String.valueOf(then);
-			message.Type = "Incoming";
-
-			returnSMS(message);
-
-		}
-
-		c.close();
-	}
-
-	public void returnMessagesOutbox() {
-
-		final Cursor c = cr.query(Uri.parse("content://sms/sent"), null, null,
-				null, null);
-
-		while (c.moveToNext()) {
-
-			SMSMessage message = new SMSMessage();
-
-			int ID = c.getInt(c.getColumnIndex("_id"));
-			int threadID = c.getInt(c.getColumnIndex("thread_id"));
-			long then = c.getLong(c.getColumnIndex("date"));
-			String address = c.getString(c.getColumnIndex("address"));
-			String body = c.getString(c.getColumnIndex("body"));
-
-			message.Id = Integer.toString(ID);
-			message.ThreadId = Integer.toString(threadID);
-			message.Body = body;
-			message.Address = address;
-			message.Time = String.valueOf(then);
-			message.Type = "Outgoing";
-			message.PersonId = "-1";
-
-			returnSMS(message);
-
-		}
-
-		c.close();
-
 	}
 
 }
