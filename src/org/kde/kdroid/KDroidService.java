@@ -70,7 +70,7 @@ public class KDroidService extends Service {
 		try {
 			port = new Port();
 			sms = new SMSHandler(getBaseContext(), port);
-			contact = new ContactHandler(getBaseContext(), port);
+			contact = new ContactHandler(getBaseContext(), port,sms);
 			dispatcher = new Dispatcher(sms, contact, port);
 			port.setDispatcher(dispatcher);
 		} catch (SocketException e) {

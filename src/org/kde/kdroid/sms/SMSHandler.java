@@ -46,6 +46,8 @@ public class SMSHandler {
 	Port port;
 	
 	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
+	private static final String OUT = "Outgoing";
+	private static final String IN = "Incoming";
 
 	public SMSHandler(Context Context, Port Port) {
 		this.port = Port;
@@ -61,9 +63,13 @@ public class SMSHandler {
                         final SmsMessage[] messages = new SmsMessage[pdus.length];
                         for (int i = 0; i < pdus.length; i++) {
                             messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-                            String address = messages[i].getDisplayOriginatingAddress();
-                            //FIXME: wait till sms are saved
-                            returnLatestSMS(address);
+                            SMSMessage message = new SMSMessage();
+                            message.Body = messages[i].getDisplayMessageBody();
+                            message.Address = messages[i].getDisplayOriginatingAddress();
+                            message.Time = Long.toString(messages[i].getTimestampMillis());
+                            message.ThreadId = Integer.toString(getSMSThreadId(message.Address));
+                            message.Type=IN;
+                            port.send(new Packet(message));
                         }
                         Log.d("KDroid", "Message recieved");
                     }
@@ -98,7 +104,13 @@ public class SMSHandler {
 					Packet packet = new Packet("Status");
 					packet.addArgument("SMSSend");
 					port.send(packet);
-					returnLatestSMS(address);
+					SMSMessage message = new SMSMessage();
+                    message.Body = body;
+                    message.Address = address;
+                    message.Time = time;
+                    message.ThreadId = Integer.toString(getSMSThreadId(address));
+                    message.Type=OUT;
+                    port.send(new Packet(message));
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 
@@ -145,9 +157,9 @@ public class SMSHandler {
 			message.Address = PhoneNumberUtils.formatNumber(address);
 			message.Time = String.valueOf(then);
 			if(type==1) {
-				message.Type = "Incoming";
+				message.Type = IN;
 			} else {
-				message.Type = "Outgoing";
+				message.Type = OUT;
 			}
 
 			returnSMS(message);
@@ -156,15 +168,23 @@ public class SMSHandler {
 
 		c.close();
 	}
+	
+	public int getSMSThreadId(String address) {
+		int id = 0;
+		final Cursor c = cr.query(Uri.parse("content://sms"), new String[] {
+				"DISTINCT address", "thread_id" }, null, null, null);
 
-	public void returnSMS(SMSMessage message) {
-		Packet packet = new Packet(message);
-		try {
-			port.send(packet);
-		} catch (NullPointerException e) {
-			e.printStackTrace();
+		while (c.moveToNext()) {
+
+			String addressSMS = c.getString(c.getColumnIndex("address"));
+			if (PhoneNumberUtils.compare(address, addressSMS)) {
+				id = c.getInt(c.getColumnIndex("thread_id"));
+				break;
+			}
 		}
 
+		c.close();
+		return id;
 	}
 
 	public void returnLatestSMS(String Address) {
@@ -195,9 +215,9 @@ public class SMSHandler {
 				message.Address = PhoneNumberUtils.formatNumber(address);
 				message.Time = String.valueOf(then);
 				if(type==1) {
-					message.Type = "Incoming";
+					message.Type = OUT;
 				} else {
-					message.Type = "Outgoing";
+					message.Type = IN;
 				}
 
 				returnSMS(message);
@@ -207,6 +227,16 @@ public class SMSHandler {
 		}
 
 		c.close();
+	}
+	
+	public void returnSMS(SMSMessage message) {
+		Packet packet = new Packet(message);
+		try {
+			port.send(packet);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

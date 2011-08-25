@@ -21,6 +21,7 @@ package org.kde.kdroid.contact;
 
 import org.kde.kdroid.net.Packet;
 import org.kde.kdroid.net.Port;
+import org.kde.kdroid.sms.SMSHandler;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -28,7 +29,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 
 public class ContactHandler {
@@ -36,10 +36,12 @@ public class ContactHandler {
 	ContentResolver cr;
 
 	Port port;
+	SMSHandler sms;
 
-	public ContactHandler(Context context, Port port) {
+	public ContactHandler(Context context, Port port, SMSHandler sms) {
 		this.port = port;
 		cr = context.getContentResolver();
+		this.sms=sms;
 	}
 
 	public void returnAllContacts() {
@@ -60,7 +62,7 @@ public class ContactHandler {
 			contact.Id = Integer.toString(ID);
 			contact.Name = name;
 			contact.Address = address;
-			contact.ThreadId = Integer.toString(getSMSThreadId(address));
+			contact.ThreadId = Integer.toString(sms.getSMSThreadId(address));
 
 			returnContact(contact);
 
@@ -101,24 +103,6 @@ public class ContactHandler {
 
 		c.close();
 
-	}
-
-	public int getSMSThreadId(String address) {
-		int id = -1;
-		final Cursor c = cr.query(Uri.parse("content://sms"), new String[] {
-				"DISTINCT address", "thread_id" }, null, null, null);
-
-		while (c.moveToNext()) {
-
-			String addressSMS = c.getString(c.getColumnIndex("address"));
-			if (PhoneNumberUtils.compare(address, addressSMS)) {
-				id = c.getInt(c.getColumnIndex("thread_id"));
-				break;
-			}
-		}
-
-		c.close();
-		return id;
 	}
 
 	public void returnContact(Contact contact) {
