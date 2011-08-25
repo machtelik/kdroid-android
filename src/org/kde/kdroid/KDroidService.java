@@ -31,6 +31,7 @@ import org.kde.kdroid.sms.SMSHandler;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 public class KDroidService extends Service {
@@ -39,8 +40,21 @@ public class KDroidService extends Service {
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private Dispatcher dispatcher;
-
 	private Timer timer;
+	
+	private KDroidServiceApi.Stub apiEndpoint = new KDroidServiceApi.Stub() {
+
+		@Override
+		public void setPort(int Port) throws RemoteException {
+			port.setPort(Port);
+		}
+
+		@Override
+		public void returnLatestMessage(String address) throws RemoteException {
+			sms.returnLatestSMS(address);			
+		}
+		
+	};
 
 	private TimerTask updateTask = new TimerTask() {
 		@Override
@@ -77,13 +91,14 @@ public class KDroidService extends Service {
 		Log.d("KDroid", "Service destroyed");
 	}
 
-	public void setPort(int Port) {
-		port.setPort(Port);
-	}
-
 	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
+	public IBinder onBind(Intent intent) {
+		  if (KDroidService.class.getName().equals(intent.getAction())) {
+			    Log.d("KDroid", "Bound by intent " + intent);
+			    return apiEndpoint;
+			  } else {
+			    return null;
+			  }
 	}
 
 }
