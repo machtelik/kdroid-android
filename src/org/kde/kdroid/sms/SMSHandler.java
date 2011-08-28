@@ -33,7 +33,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -67,9 +66,9 @@ public class SMSHandler {
                             message.Body = messages[i].getDisplayMessageBody();
                             message.Address = messages[i].getDisplayOriginatingAddress();
                             message.Time = Long.toString(messages[i].getTimestampMillis());
-                            message.ThreadId = Integer.toString(getSMSThreadId(message.Address));
                             message.Type=IN;
                             port.send(new Packet(message));
+                            //TODO: handler.postdelayed
                         }
                         Log.d("KDroid", "Message recieved");
                     }
@@ -108,7 +107,6 @@ public class SMSHandler {
                     message.Body = body;
                     message.Address = address;
                     message.Time = time;
-                    message.ThreadId = Integer.toString(getSMSThreadId(address));
                     message.Type=OUT;
                     port.send(new Packet(message));
 					break;
@@ -143,18 +141,14 @@ public class SMSHandler {
 			SMSMessage message = new SMSMessage();
 
 			int ID = c.getInt(c.getColumnIndex("_id"));
-			int threadID = c.getInt(c.getColumnIndex("thread_id"));
 			long then = c.getLong(c.getColumnIndex("date"));
-			int person = c.getInt(c.getColumnIndex("person"));
 			String address = c.getString(c.getColumnIndex("address"));
 			String body = c.getString(c.getColumnIndex("body"));
 			int type  = c.getInt(c.getColumnIndex("type"));
 
 			message.Id = Integer.toString(ID);
-			message.ThreadId = Integer.toString(threadID);
-			message.PersonId = Integer.toString(person);
 			message.Body = body;
-			message.Address = PhoneNumberUtils.formatNumber(address);
+			message.Address = address;
 			message.Time = String.valueOf(then);
 			if(type==1) {
 				message.Type = IN;
@@ -169,23 +163,6 @@ public class SMSHandler {
 		c.close();
 	}
 	
-	public int getSMSThreadId(String address) {
-		int id = 0;
-		final Cursor c = cr.query(Uri.parse("content://sms"), new String[] {
-				"DISTINCT address", "thread_id" }, null, null, null);
-
-		while (c.moveToNext()) {
-
-			String addressSMS = c.getString(c.getColumnIndex("address"));
-			if (PhoneNumberUtils.compare(address, addressSMS)) {
-				id = c.getInt(c.getColumnIndex("thread_id"));
-				break;
-			}
-		}
-
-		c.close();
-		return id;
-	}
 	
 	public void returnSMS(SMSMessage message) {
 		Packet packet = new Packet(message);

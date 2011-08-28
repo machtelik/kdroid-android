@@ -27,6 +27,5 @@ public class Contact {
 	public String Id = "";
 	public String Name = "";
 	public String Address = "";
-	public String ThreadId = "";
 
 }

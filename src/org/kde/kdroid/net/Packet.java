@@ -38,9 +38,7 @@ public class Packet {
 	public Packet(SMSMessage message) {
 		type = "SMS";
 		addArgument(message.Id);
-		addArgument(message.ThreadId);
 		addArgument(message.Address);
-		addArgument(message.PersonId);
 		addArgument(message.Body);
 		addArgument(message.Time);
 		addArgument(message.Type);
@@ -51,7 +49,6 @@ public class Packet {
 		addArgument(contact.Id);
 		addArgument(contact.Name);
 		addArgument(contact.Address);
-		addArgument(contact.ThreadId);
 	}
 
 	public Packet(String type) {
@@ -61,12 +58,10 @@ public class Packet {
 	SMSMessage toSMSMessage() {
 		SMSMessage message = new SMSMessage();
 		message.Id = arguments.elementAt(0);
-		message.ThreadId = arguments.elementAt(1);
-		message.Address = arguments.elementAt(2);
-		message.PersonId = arguments.elementAt(3);
-		message.Body = arguments.elementAt(4);
-		message.Time = arguments.elementAt(5);
-		message.Type = arguments.elementAt(6);
+		message.Address = arguments.elementAt(1);
+		message.Body = arguments.elementAt(2);
+		message.Time = arguments.elementAt(3);
+		message.Type = arguments.elementAt(4);
 
 		return message;
 	}

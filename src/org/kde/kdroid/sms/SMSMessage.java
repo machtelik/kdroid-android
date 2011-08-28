@@ -22,9 +22,7 @@ package org.kde.kdroid.sms;
 public class SMSMessage {
 	public SMSMessage() {}
 	public String Id = "";
-	public String ThreadId = "";
 	public String Address = "";
-	public String PersonId = "";
 	public String Body = "";
 	public String Time = "";
 	public String Type = "";

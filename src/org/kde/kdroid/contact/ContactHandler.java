@@ -62,7 +62,6 @@ public class ContactHandler {
 			contact.Id = Integer.toString(ID);
 			contact.Name = name;
 			contact.Address = address;
-			contact.ThreadId = Integer.toString(sms.getSMSThreadId(address));
 
 			returnContact(contact);
 
@@ -88,12 +87,10 @@ public class ContactHandler {
 				Contact contact = new Contact();
 
 				String address = c.getString(c.getColumnIndex("address"));
-				int threadId = c.getInt(c.getColumnIndex("thread_id"));
 
 				contact.Id = "0";
 				contact.Name = "Unknown";
 				contact.Address = address;
-				contact.ThreadId = Integer.toString(threadId);
 
 				returnContact(contact);
 
