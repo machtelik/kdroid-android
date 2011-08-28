@@ -53,7 +53,6 @@ public class Dispatcher {
 				port.send(p);
 				
 				contact.returnAllContacts();
-				contact.returnUnknownContactNumbers();
 				sms.returnAllMessages();
 				
 				p = new Packet("Status");

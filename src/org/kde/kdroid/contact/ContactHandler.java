@@ -26,7 +26,6 @@ import org.kde.kdroid.sms.SMSHandler;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
@@ -64,37 +63,6 @@ public class ContactHandler {
 			contact.Address = address;
 
 			returnContact(contact);
-
-		}
-
-		c.close();
-
-	}
-
-	public void returnUnknownContactNumbers() {
-		Log.d("KDroid", "Returning All Unknown Contacts");
-
-		final Cursor c = cr.query(Uri.parse("content://sms/inbox"),
-				new String[] { "DISTINCT address", "person", "thread_id" },
-				null, null, null);
-
-		while (c.moveToNext()) {
-
-			int person = c.getInt(c.getColumnIndex("person"));
-
-			if (person == 0) {
-
-				Contact contact = new Contact();
-
-				String address = c.getString(c.getColumnIndex("address"));
-
-				contact.Id = "0";
-				contact.Name = "Unknown";
-				contact.Address = address;
-
-				returnContact(contact);
-
-			}
 
 		}
 
