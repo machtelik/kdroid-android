@@ -52,8 +52,10 @@ public class Port {
 		}
 	}
 
-	public Port() throws SocketException {
-		socket = new DatagramSocket(port);
+	public Port(int Port) throws SocketException {
+		
+		socket = new DatagramSocket(Port);
+		port = Port;
 	}
 
 	public void setDispatcher(Dispatcher dispatcher) {

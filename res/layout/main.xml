@@ -11,6 +11,16 @@
         <Button android:text="Save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/saveButton"></Button>
         <Button android:text="Default" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/defaultButton"></Button>
     </LinearLayout>
+    <TableLayout android:layout_width="match_parent" android:id="@+id/tableLayout1" android:layout_height="142dp">
+        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow1" android:layout_height="wrap_content">
+            <TextView android:text="Service:" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView2" android:layout_height="wrap_content"></TextView>
+            <ToggleButton android:text="Service" android:id="@+id/serviceToggleButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></ToggleButton>
+            <CheckBox android:text="Start on Boot" android:id="@+id/serviceCheckBox" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></CheckBox>
+        </TableRow>
+        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow2" android:layout_height="wrap_content"></TableRow>
+        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow3" android:layout_height="wrap_content"></TableRow>
+        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow4" android:layout_height="wrap_content"></TableRow>
+    </TableLayout>
     <FrameLayout android:layout_width="match_parent" android:id="@+id/frameLayout1" android:layout_height="wrap_content" android:layout_gravity="center">
         <ImageView android:layout_width="wrap_content" android:src="@drawable/kde" android:id="@+id/imageView1" android:layout_height="wrap_content" android:layout_gravity="center"></ImageView>
     </FrameLayout>

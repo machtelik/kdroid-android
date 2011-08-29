@@ -30,6 +30,7 @@ import org.kde.kdroid.sms.SMSHandler;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -62,8 +63,10 @@ public class KDroidService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		Log.d("KDroid", "Service created");
+		SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
+		int Port = settings.getInt("port", 48564);
 		try {
-			port = new Port();
+			port = new Port(Port);
 			sms = new SMSHandler(getBaseContext(), port);
 			contact = new ContactHandler(getBaseContext(), port,sms);
 			dispatcher = new Dispatcher(sms, contact, port);
@@ -83,6 +86,9 @@ public class KDroidService extends Service {
 
 	@Override
 	public void onDestroy() {
+		sms.unregisterReciever();
+		timer.cancel();
+		port.close();
 		Log.d("KDroid", "Service destroyed");
 	}
 

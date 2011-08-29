@@ -22,10 +22,13 @@ package org.kde.kdroid;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 public class KDroidBootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		SharedPreferences settings = context.getSharedPreferences("KDroidSettings", 0);
+		settings.getBoolean("serviceOnBoot", true);
 		Intent serviceIntent = new Intent(KDroidService.class.getName());
 		context.startService(serviceIntent);
 	}

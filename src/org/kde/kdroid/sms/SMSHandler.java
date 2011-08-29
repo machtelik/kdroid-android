@@ -47,35 +47,40 @@ public class SMSHandler {
 	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private static final String OUT = "Outgoing";
 	private static final String IN = "Incoming";
+	
+	private BroadcastReceiver smsReciever = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context arg0, Intent intent) {
+			if (intent.getAction().equals(SMS_RECEIVED)) {
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    Object[] pdus = (Object[])bundle.get("pdus");
+                    final SmsMessage[] messages = new SmsMessage[pdus.length];
+                    for (int i = 0; i < pdus.length; i++) {
+                        messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                        SMSMessage message = new SMSMessage();
+                        message.Body = messages[i].getDisplayMessageBody();
+                        message.Address = messages[i].getDisplayOriginatingAddress();
+                        message.Time = Long.toString(messages[i].getTimestampMillis());
+                        message.Type=IN;
+                        port.send(new Packet(message));
+                    }
+                    Log.d("KDroid", "Message recieved");
+                }
+            }
+
+		}
+	};
 
 	public SMSHandler(Context Context, Port Port) {
 		this.port = Port;
 		this.context = Context;
 		cr = context.getContentResolver();
-		context.registerReceiver(new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context arg0, Intent intent) {
-				if (intent.getAction().equals(SMS_RECEIVED)) {
-                    Bundle bundle = intent.getExtras();
-                    if (bundle != null) {
-                        Object[] pdus = (Object[])bundle.get("pdus");
-                        final SmsMessage[] messages = new SmsMessage[pdus.length];
-                        for (int i = 0; i < pdus.length; i++) {
-                            messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-                            SMSMessage message = new SMSMessage();
-                            message.Body = messages[i].getDisplayMessageBody();
-                            message.Address = messages[i].getDisplayOriginatingAddress();
-                            message.Time = Long.toString(messages[i].getTimestampMillis());
-                            message.Type=IN;
-                            port.send(new Packet(message));
-                            //TODO: handler.postdelayed
-                        }
-                        Log.d("KDroid", "Message recieved");
-                    }
-                }
-
-			}
-		}, new IntentFilter(SMS_RECEIVED));
+		context.registerReceiver(smsReciever, new IntentFilter(SMS_RECEIVED));
+	}
+	
+	public void unregisterReciever() {
+		context.unregisterReceiver(smsReciever);
 	}
 
 	public void sendSMS(SMSMessage message) {
