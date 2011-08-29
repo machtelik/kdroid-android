@@ -29,9 +29,9 @@ public class Dispatcher {
 
 	private SMSHandler sms;
 	private ContactHandler contact;
-	private Port port;
+	private UDPPort port;
 	
-	public Dispatcher(SMSHandler sms,ContactHandler contact,Port port) {
+	public Dispatcher(SMSHandler sms,ContactHandler contact,UDPPort port) {
 		this.sms=sms;
 		this.contact=contact;
 		this.port=port;

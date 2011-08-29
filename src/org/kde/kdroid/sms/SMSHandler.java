@@ -20,7 +20,7 @@
 package org.kde.kdroid.sms;
 
 import org.kde.kdroid.net.Packet;
-import org.kde.kdroid.net.Port;
+import org.kde.kdroid.net.UDPPort;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -42,7 +42,7 @@ public class SMSHandler {
 	ContentResolver cr;
 	Context context;
 
-	Port port;
+	UDPPort port;
 	
 	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private static final String OUT = "Outgoing";
@@ -72,7 +72,7 @@ public class SMSHandler {
 		}
 	};
 
-	public SMSHandler(Context Context, Port Port) {
+	public SMSHandler(Context Context, UDPPort Port) {
 		this.port = Port;
 		this.context = Context;
 		cr = context.getContentResolver();

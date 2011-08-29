@@ -25,7 +25,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class Port {
+public class UDPPort {
 
 	private DatagramSocket socket;
 	private int port = 48564;
@@ -52,7 +52,7 @@ public class Port {
 		}
 	}
 
-	public Port(int Port) throws SocketException {
+	public UDPPort(int Port) throws SocketException {
 		
 		socket = new DatagramSocket(Port);
 		port = Port;

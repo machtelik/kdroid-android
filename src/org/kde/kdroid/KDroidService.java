@@ -25,7 +25,7 @@ import java.util.TimerTask;
 
 import org.kde.kdroid.contact.ContactHandler;
 import org.kde.kdroid.net.Dispatcher;
-import org.kde.kdroid.net.Port;
+import org.kde.kdroid.net.UDPPort;
 import org.kde.kdroid.sms.SMSHandler;
 
 import android.app.Service;
@@ -37,7 +37,7 @@ import android.util.Log;
 
 public class KDroidService extends Service {
 
-	private Port port;
+	private UDPPort port;
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private Dispatcher dispatcher;
@@ -66,7 +66,7 @@ public class KDroidService extends Service {
 		SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
 		int Port = settings.getInt("port", 48564);
 		try {
-			port = new Port(Port);
+			port = new UDPPort(Port);
 			sms = new SMSHandler(getBaseContext(), port);
 			contact = new ContactHandler(getBaseContext(), port,sms);
 			dispatcher = new Dispatcher(sms, contact, port);

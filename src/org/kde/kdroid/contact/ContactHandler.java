@@ -20,7 +20,7 @@
 package org.kde.kdroid.contact;
 
 import org.kde.kdroid.net.Packet;
-import org.kde.kdroid.net.Port;
+import org.kde.kdroid.net.UDPPort;
 import org.kde.kdroid.sms.SMSHandler;
 
 import android.content.ContentResolver;
@@ -34,10 +34,10 @@ public class ContactHandler {
 
 	ContentResolver cr;
 
-	Port port;
+	UDPPort port;
 	SMSHandler sms;
 
-	public ContactHandler(Context context, Port port, SMSHandler sms) {
+	public ContactHandler(Context context, UDPPort port, SMSHandler sms) {
 		this.port = port;
 		cr = context.getContentResolver();
 		this.sms=sms;
