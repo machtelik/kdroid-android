@@ -8,12 +8,12 @@ public class TCPClientPort extends TCPPort {
 	private Socket clientSocket = null;
 
 	public TCPClientPort(int Port) {
-		port=Port;
+		port=Port+1;
 	}
 
 	@Override
 	public void setPort(int port) {
-		this.port=port;
+		this.port=port+1;
 		if(clientSocket!=null) {
 			try {
 				clientSocket.close();

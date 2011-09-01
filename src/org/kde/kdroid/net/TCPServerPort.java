@@ -47,6 +47,7 @@ public class TCPServerPort extends TCPPort implements Runnable {
 						++pos;
 					}
 				}
+				Log.d("KDroid","Done");
 				out.flush();
 				s.close();
 				out = null;

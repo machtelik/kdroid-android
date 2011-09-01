@@ -67,6 +67,9 @@ public class SMSHandler {
                         message.Time = Long.toString(messages[i].getTimestampMillis());
                         message.Type=IN;
                         tcpClientPort.send(new Packet(message));
+    					Packet packet = new Packet(Type.Status);
+    					packet.addArgument("newMessage");
+    					tcpClientPort.send(packet);
                     }
                     Log.d("KDroid", "Message recieved");
                 }
@@ -111,7 +114,7 @@ public class SMSHandler {
 					cr.insert(Uri.parse("content://sms"), values);
 					Packet packet = new Packet(Type.Status);
 					packet.addArgument("SMSSend");
-					tcpServerPort.send(packet);
+					tcpClientPort.send(packet);
 					SMSMessage message = new SMSMessage();
                     message.Body = body;
                     message.Address = address;
@@ -184,3 +187,4 @@ public class SMSHandler {
 	}
 
 }
+

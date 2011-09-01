@@ -56,9 +56,13 @@ public class Dispatcher {
 				p = new Packet(Type.Status);
 				p.addArgument("DoneGetAll");
 				tcpServerPort.send(p);
-				return;
 			}
 		}
+		
+		Packet p = new Packet(Type.Status);
+		p.addArgument("end");
+		tcpServerPort.send(p);
+		Log.d("KDroid","End");
 	}
 	
 }
