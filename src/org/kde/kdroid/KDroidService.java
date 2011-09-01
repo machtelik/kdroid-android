@@ -19,13 +19,10 @@
 
 package org.kde.kdroid;
 
-import java.net.SocketException;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.kde.kdroid.contact.ContactHandler;
 import org.kde.kdroid.net.Dispatcher;
-import org.kde.kdroid.net.UDPPort;
+import org.kde.kdroid.net.TCPClientPort;
+import org.kde.kdroid.net.TCPServerPort;
 import org.kde.kdroid.sms.SMSHandler;
 
 import android.app.Service;
@@ -37,26 +34,21 @@ import android.util.Log;
 
 public class KDroidService extends Service {
 
-	private UDPPort port;
+	private TCPServerPort tcpServerPort;
+	private TCPClientPort tcpClientPort;
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private Dispatcher dispatcher;
-	private Timer timer;
 	
 	private KDroidServiceApi.Stub apiEndpoint = new KDroidServiceApi.Stub() {
 
 		@Override
 		public void setPort(int Port) throws RemoteException {
-			port.setPort(Port);
+			tcpServerPort.setPort(Port);
+			tcpClientPort.setPort(Port);
+			tcpServerPort.start();
 		}
 		
-	};
-
-	private TimerTask updateTask = new TimerTask() {
-		@Override
-		public void run() {
-			port.recive();
-		}
 	};
 
 	@Override
@@ -65,30 +57,27 @@ public class KDroidService extends Service {
 		Log.d("KDroid", "Service created");
 		SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
 		int Port = settings.getInt("port", 48564);
-		try {
-			port = new UDPPort(Port);
-			sms = new SMSHandler(getBaseContext(), port);
-			contact = new ContactHandler(getBaseContext(), port,sms);
-			dispatcher = new Dispatcher(sms, contact, port);
-			port.setDispatcher(dispatcher);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		}
-		timer = new Timer("ReceiveTimer");
-		timer.schedule(updateTask, 1000L, 500L);
+		tcpServerPort = new TCPServerPort(Port);
+		tcpClientPort = new TCPClientPort(Port);
+		sms = new SMSHandler(getBaseContext(), tcpServerPort,tcpClientPort);
+		contact = new ContactHandler(getBaseContext(), tcpServerPort,sms);
+		dispatcher = new Dispatcher(sms, contact, tcpServerPort);
+		tcpServerPort.setDispatcher(dispatcher);
+		tcpServerPort.start();
+		
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("KDroid", "Service received start id " + startId + ": " + intent);
+		tcpServerPort.start();
 		return START_STICKY;
 	}
 
 	@Override
 	public void onDestroy() {
 		sms.unregisterReciever();
-		timer.cancel();
-		port.close();
+		tcpServerPort.stop();
 		Log.d("KDroid", "Service destroyed");
 	}
 

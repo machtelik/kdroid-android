@@ -20,6 +20,7 @@
 package org.kde.kdroid.net;
 
 import org.kde.kdroid.contact.ContactHandler;
+import org.kde.kdroid.net.Packet.Type;
 import org.kde.kdroid.sms.SMSHandler;
 import org.kde.kdroid.sms.SMSMessage;
 
@@ -29,35 +30,32 @@ public class Dispatcher {
 
 	private SMSHandler sms;
 	private ContactHandler contact;
-	private UDPPort port;
+	private TCPServerPort tcpServerPort;
 	
-	public Dispatcher(SMSHandler sms,ContactHandler contact,UDPPort port) {
+	public Dispatcher(SMSHandler sms,ContactHandler contact, TCPServerPort tcpServerPort) {
 		this.sms=sms;
 		this.contact=contact;
-		this.port=port;
+		this.tcpServerPort = tcpServerPort;
 	}
 	
 	public void dispatch(Packet packet) {
 		Log.d("KDroid", "Dispatching "+packet.getType());
-		Packet p = new Packet("Status");
-		p.addArgument("Pong");
-		port.send(p);
 		if(packet.getType().compareTo("SMS")==0) {
 			SMSMessage message = packet.toSMSMessage();
 			sms.sendSMS(message);
 		}
 		if(packet.getType().compareTo("Request")==0) {
 			if(packet.getArguments().elementAt(0).compareTo("getAll")==0) {
-				p = new Packet("Status");
+				Packet p = new Packet(Type.Status);
 				p.addArgument("AckGetAll");
-				port.send(p);
+				tcpServerPort.send(p);
 				
 				contact.returnAllContacts();
 				sms.returnAllMessages();
 				
-				p = new Packet("Status");
+				p = new Packet(Type.Status);
 				p.addArgument("DoneGetAll");
-				port.send(p);
+				tcpServerPort.send(p);
 				return;
 			}
 		}

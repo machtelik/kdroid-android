@@ -28,12 +28,13 @@ import org.kde.kdroid.sms.SMSMessage;
 public class Packet {
 
 	private Vector<String> arguments = new Vector<String>();
-	private final String separator = new String(new char[] { 30 }); // argument
-																	// seperator
-																	// - asci 30
-																	// = record
-																	// separator
+	private final String separator = new String(new char[] { 30 });
+	private final String packetSeparator = new String(new char[] { 31 });
 	private String type;
+
+	public enum Type {
+		SMS, Contact, Status
+	}
 
 	public Packet(SMSMessage message) {
 		type = "SMS";
@@ -49,10 +50,6 @@ public class Packet {
 		addArgument(contact.Id);
 		addArgument(contact.Name);
 		addArgument(contact.Address);
-	}
-
-	public Packet(String type) {
-		this.type = type;
 	}
 
 	SMSMessage toSMSMessage() {
@@ -78,6 +75,20 @@ public class Packet {
 		return type;
 	}
 
+	public Packet(Type t) {
+		switch (t) {
+		case SMS:
+			type = "SMS";
+			break;
+		case Contact:
+			type = "Contact";
+			break;
+		case Status:
+			type = "Status";
+			break;
+		}
+	}
+
 	public Packet(byte[] data) {
 		String dat = new String(data);
 		String[] list = dat.split(separator);
@@ -95,6 +106,7 @@ public class Packet {
 			data += arguments.elementAt(i);
 			data += separator;
 		}
+		data += packetSeparator;
 		try {
 			return data.getBytes("UTF8");
 		} catch (UnsupportedEncodingException e) {

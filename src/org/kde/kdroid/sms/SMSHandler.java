@@ -20,7 +20,9 @@
 package org.kde.kdroid.sms;
 
 import org.kde.kdroid.net.Packet;
-import org.kde.kdroid.net.UDPPort;
+import org.kde.kdroid.net.Packet.Type;
+import org.kde.kdroid.net.TCPClientPort;
+import org.kde.kdroid.net.TCPServerPort;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -39,10 +41,11 @@ import android.util.Log;
 
 public class SMSHandler {
 
-	ContentResolver cr;
-	Context context;
+	private ContentResolver cr;
+	private Context context;
 
-	UDPPort port;
+	private TCPServerPort tcpServerPort;
+	private TCPClientPort tcpClientPort;
 	
 	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private static final String OUT = "Outgoing";
@@ -63,7 +66,7 @@ public class SMSHandler {
                         message.Address = messages[i].getDisplayOriginatingAddress();
                         message.Time = Long.toString(messages[i].getTimestampMillis());
                         message.Type=IN;
-                        port.send(new Packet(message));
+                        tcpClientPort.send(new Packet(message));
                     }
                     Log.d("KDroid", "Message recieved");
                 }
@@ -72,8 +75,9 @@ public class SMSHandler {
 		}
 	};
 
-	public SMSHandler(Context Context, UDPPort Port) {
-		this.port = Port;
+	public SMSHandler(Context Context, TCPServerPort tcpServerPort, TCPClientPort tcpClientPort) {
+		this.tcpServerPort = tcpServerPort;
+		this.tcpClientPort=tcpClientPort;
 		this.context = Context;
 		cr = context.getContentResolver();
 		context.registerReceiver(smsReciever, new IntentFilter(SMS_RECEIVED));
@@ -105,15 +109,15 @@ public class SMSHandler {
 					values.put("type", 2);
 					values.put("body", body);
 					cr.insert(Uri.parse("content://sms"), values);
-					Packet packet = new Packet("Status");
+					Packet packet = new Packet(Type.Status);
 					packet.addArgument("SMSSend");
-					port.send(packet);
+					tcpServerPort.send(packet);
 					SMSMessage message = new SMSMessage();
                     message.Body = body;
                     message.Address = address;
                     message.Time = time;
                     message.Type=OUT;
-                    port.send(new Packet(message));
+                    tcpClientPort.send(new Packet(message));
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 
@@ -172,7 +176,7 @@ public class SMSHandler {
 	public void returnSMS(SMSMessage message) {
 		Packet packet = new Packet(message);
 		try {
-			port.send(packet);
+			tcpServerPort.send(packet);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
