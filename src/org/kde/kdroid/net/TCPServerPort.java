@@ -78,7 +78,6 @@ public class TCPServerPort extends TCPPort implements Runnable {
 
 	public void stop() {
 		running = false;
-		this.stop();
 	}
 
 }
