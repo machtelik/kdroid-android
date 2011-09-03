@@ -31,12 +31,14 @@ public class Dispatcher {
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private TCPServerPort tcpServerPort;
+	private TCPClientPort tcpClientPort;
 
 	public Dispatcher(SMSHandler sms, ContactHandler contact,
-			TCPServerPort tcpServerPort) {
+			TCPServerPort tcpServerPort, TCPClientPort tcpClientPort) {
 		this.sms = sms;
 		this.contact = contact;
 		this.tcpServerPort = tcpServerPort;
+		this.tcpClientPort = tcpClientPort;
 	}
 
 	public void dispatch(Packet packet) {
@@ -45,6 +47,7 @@ public class Dispatcher {
 			SMSMessage message = packet.toSMSMessage();
 			if (message.Type.compareTo("Send") == 0) {
 				sms.sendSMS(message);
+				endServerConnection();
 			}
 		}
 		if (packet.getType().compareTo("Request") == 0) {
@@ -59,9 +62,22 @@ public class Dispatcher {
 				p = new Packet(Type.Status);
 				p.addArgument("DoneGetAll");
 				tcpServerPort.send(p);
+
+				endServerConnection();
 			}
 		}
 
+		if (packet.getType().compareTo("Status") == 0) {
+			SMSMessage message = packet.toSMSMessage();
+			if (message.Type.compareTo("connectionTest") == 0) {
+				Packet p = new Packet(Type.Status);
+				p.addArgument("connectionSuccessful");
+				tcpClientPort.send(p);
+			}
+		}
+	}
+
+	private void endServerConnection() {
 		Packet p = new Packet(Type.Status);
 		p.addArgument("end");
 		tcpServerPort.send(p);

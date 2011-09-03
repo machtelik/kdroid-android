@@ -61,7 +61,7 @@ public class KDroidService extends Service {
 		tcpClientPort = new TCPClientPort(Port);
 		sms = new SMSHandler(getBaseContext(), tcpServerPort, tcpClientPort);
 		contact = new ContactHandler(getBaseContext(), tcpServerPort, sms);
-		dispatcher = new Dispatcher(sms, contact, tcpServerPort);
+		dispatcher = new Dispatcher(sms, contact, tcpServerPort, tcpClientPort);
 		tcpServerPort.setDispatcher(dispatcher);
 		tcpServerPort.start();
 
