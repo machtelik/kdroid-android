@@ -27,7 +27,8 @@ import android.content.SharedPreferences;
 public class KDroidBootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		SharedPreferences settings = context.getSharedPreferences("KDroidSettings", 0);
+		SharedPreferences settings = context.getSharedPreferences(
+				"KDroidSettings", 0);
 		settings.getBoolean("serviceOnBoot", true);
 		Intent serviceIntent = new Intent(KDroidService.class.getName());
 		context.startService(serviceIntent);

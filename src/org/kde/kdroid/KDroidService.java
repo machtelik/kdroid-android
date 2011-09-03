@@ -39,7 +39,7 @@ public class KDroidService extends Service {
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private Dispatcher dispatcher;
-	
+
 	private KDroidServiceApi.Stub apiEndpoint = new KDroidServiceApi.Stub() {
 
 		@Override
@@ -48,7 +48,7 @@ public class KDroidService extends Service {
 			tcpClientPort.setPort(Port);
 			tcpServerPort.start();
 		}
-		
+
 	};
 
 	@Override
@@ -59,12 +59,12 @@ public class KDroidService extends Service {
 		int Port = settings.getInt("port", 48564);
 		tcpServerPort = new TCPServerPort(Port);
 		tcpClientPort = new TCPClientPort(Port);
-		sms = new SMSHandler(getBaseContext(), tcpServerPort,tcpClientPort);
-		contact = new ContactHandler(getBaseContext(), tcpServerPort,sms);
+		sms = new SMSHandler(getBaseContext(), tcpServerPort, tcpClientPort);
+		contact = new ContactHandler(getBaseContext(), tcpServerPort, sms);
 		dispatcher = new Dispatcher(sms, contact, tcpServerPort);
 		tcpServerPort.setDispatcher(dispatcher);
 		tcpServerPort.start();
-		
+
 	}
 
 	@Override
@@ -83,12 +83,12 @@ public class KDroidService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		  if (KDroidService.class.getName().equals(intent.getAction())) {
-			    Log.d("KDroid", "Bound by intent " + intent);
-			    return apiEndpoint;
-			  } else {
-			    return null;
-			  }
+		if (KDroidService.class.getName().equals(intent.getAction())) {
+			Log.d("KDroid", "Bound by intent " + intent);
+			return apiEndpoint;
+		} else {
+			return null;
+		}
 	}
 
 }

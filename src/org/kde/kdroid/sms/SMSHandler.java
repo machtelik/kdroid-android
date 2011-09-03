@@ -46,46 +46,50 @@ public class SMSHandler {
 
 	private TCPServerPort tcpServerPort;
 	private TCPClientPort tcpClientPort;
-	
+
 	private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 	private static final String OUT = "Outgoing";
 	private static final String IN = "Incoming";
-	
+
 	private BroadcastReceiver smsReciever = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			if (intent.getAction().equals(SMS_RECEIVED)) {
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    Object[] pdus = (Object[])bundle.get("pdus");
-                    final SmsMessage[] messages = new SmsMessage[pdus.length];
-                    for (int i = 0; i < pdus.length; i++) {
-                        messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-                        SMSMessage message = new SMSMessage();
-                        message.Body = messages[i].getDisplayMessageBody();
-                        message.Address = messages[i].getDisplayOriginatingAddress();
-                        message.Time = Long.toString(messages[i].getTimestampMillis());
-                        message.Type=IN;
-                        tcpClientPort.send(new Packet(message));
-    					Packet packet = new Packet(Type.Status);
-    					packet.addArgument("newMessage");
-    					tcpClientPort.send(packet);
-                    }
-                    Log.d("KDroid", "Message recieved");
-                }
-            }
+				Bundle bundle = intent.getExtras();
+				if (bundle != null) {
+					Object[] pdus = (Object[]) bundle.get("pdus");
+					final SmsMessage[] messages = new SmsMessage[pdus.length];
+					for (int i = 0; i < pdus.length; i++) {
+						messages[i] = SmsMessage
+								.createFromPdu((byte[]) pdus[i]);
+						SMSMessage message = new SMSMessage();
+						message.Body = messages[i].getDisplayMessageBody();
+						message.Address = messages[i]
+								.getDisplayOriginatingAddress();
+						message.Time = Long.toString(messages[i]
+								.getTimestampMillis());
+						message.Type = IN;
+						tcpClientPort.send(new Packet(message));
+						Packet packet = new Packet(Type.Status);
+						packet.addArgument("newMessage");
+						tcpClientPort.send(packet);
+					}
+					Log.d("KDroid", "Message recieved");
+				}
+			}
 
 		}
 	};
 
-	public SMSHandler(Context Context, TCPServerPort tcpServerPort, TCPClientPort tcpClientPort) {
+	public SMSHandler(Context Context, TCPServerPort tcpServerPort,
+			TCPClientPort tcpClientPort) {
 		this.tcpServerPort = tcpServerPort;
-		this.tcpClientPort=tcpClientPort;
+		this.tcpClientPort = tcpClientPort;
 		this.context = Context;
 		cr = context.getContentResolver();
 		context.registerReceiver(smsReciever, new IntentFilter(SMS_RECEIVED));
 	}
-	
+
 	public void unregisterReciever() {
 		context.unregisterReceiver(smsReciever);
 	}
@@ -116,11 +120,11 @@ public class SMSHandler {
 					packet.addArgument("SMSSend");
 					tcpClientPort.send(packet);
 					SMSMessage message = new SMSMessage();
-                    message.Body = body;
-                    message.Address = address;
-                    message.Time = time;
-                    message.Type=OUT;
-                    tcpClientPort.send(new Packet(message));
+					message.Body = body;
+					message.Address = address;
+					message.Time = time;
+					message.Type = OUT;
+					tcpClientPort.send(new Packet(message));
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 
@@ -145,8 +149,8 @@ public class SMSHandler {
 
 	public void returnAllMessages() {
 		Log.d("KDroid", "Returning All SMS");
-		final Cursor c = cr.query(Uri.parse("content://sms"), null, null,
-				null, null);
+		final Cursor c = cr.query(Uri.parse("content://sms"), null, null, null,
+				null);
 
 		while (c.moveToNext()) {
 
@@ -156,13 +160,13 @@ public class SMSHandler {
 			long then = c.getLong(c.getColumnIndex("date"));
 			String address = c.getString(c.getColumnIndex("address"));
 			String body = c.getString(c.getColumnIndex("body"));
-			int type  = c.getInt(c.getColumnIndex("type"));
+			int type = c.getInt(c.getColumnIndex("type"));
 
 			message.Id = Integer.toString(ID);
 			message.Body = body;
 			message.Address = address;
 			message.Time = String.valueOf(then);
-			if(type==1) {
+			if (type == 1) {
 				message.Type = IN;
 			} else {
 				message.Type = OUT;
@@ -174,8 +178,7 @@ public class SMSHandler {
 
 		c.close();
 	}
-	
-	
+
 	public void returnSMS(SMSMessage message) {
 		Packet packet = new Packet(message);
 		try {
@@ -187,4 +190,3 @@ public class SMSHandler {
 	}
 
 }
-

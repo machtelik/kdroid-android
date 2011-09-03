@@ -20,7 +20,9 @@
 package org.kde.kdroid.sms;
 
 public class SMSMessage {
-	public SMSMessage() {}
+	public SMSMessage() {
+	}
+
 	public String Id = "";
 	public String Address = "";
 	public String Body = "";

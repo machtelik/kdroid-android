@@ -8,16 +8,16 @@ public class TCPClientPort extends TCPPort {
 	private Socket clientSocket = null;
 
 	public TCPClientPort(int Port) {
-		port=Port+1;
+		port = Port + 1;
 	}
 
 	@Override
 	public void setPort(int port) {
-		this.port=port+1;
-		if(clientSocket!=null) {
+		this.port = port + 1;
+		if (clientSocket != null) {
 			try {
 				clientSocket.close();
-				clientSocket=null;
+				clientSocket = null;
 				out = null;
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -26,7 +26,7 @@ public class TCPClientPort extends TCPPort {
 	}
 
 	public boolean send(Packet packet) {
-		if(connect()) {
+		if (connect()) {
 			boolean status = super.send(packet);
 			disconnect();
 			return status;
@@ -53,7 +53,7 @@ public class TCPClientPort extends TCPPort {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		clientSocket=null;
+		clientSocket = null;
 		out = null;
 	}
 

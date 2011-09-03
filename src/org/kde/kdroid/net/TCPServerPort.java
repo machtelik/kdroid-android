@@ -16,7 +16,7 @@ public class TCPServerPort extends TCPPort implements Runnable {
 
 	public TCPServerPort(int Port) {
 		try {
-			port=Port;
+			port = Port;
 			socket = new ServerSocket(Port);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -28,7 +28,7 @@ public class TCPServerPort extends TCPPort implements Runnable {
 			try {
 				Socket s = socket.accept();
 				address = s.getInetAddress();
-				Log.d("KDroid","Accept");
+				Log.d("KDroid", "Accept");
 				Reader in = new BufferedReader(new InputStreamReader(
 						s.getInputStream(), "UTF8"));
 				out = s.getOutputStream();
@@ -41,13 +41,13 @@ public class TCPServerPort extends TCPPort implements Runnable {
 							dispatcher.dispatch(new Packet(bytes));
 						}
 						bytes = new byte[2048];
-						pos=0;
+						pos = 0;
 					} else {
-						bytes[pos]=(byte) ch;
+						bytes[pos] = (byte) ch;
 						++pos;
 					}
 				}
-				Log.d("KDroid","Done");
+				Log.d("KDroid", "Done");
 				out.flush();
 				s.close();
 				out = null;
@@ -60,7 +60,7 @@ public class TCPServerPort extends TCPPort implements Runnable {
 	@Override
 	public void setPort(int Port) {
 		stop();
-		port=Port;
+		port = Port;
 		try {
 			socket.close();
 			socket = new ServerSocket(Port);

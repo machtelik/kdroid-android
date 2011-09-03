@@ -43,37 +43,36 @@ public class KDroidActivity extends Activity {
 	private Button defaultButton;
 	private CheckBox serviceCheckBox;
 	private ToggleButton serviceToggleButton;
-	
+
 	private KDroidServiceApi api;
 	private boolean isBound = false;
 
-	
 	private ServiceConnection serviceConnection = new ServiceConnection() {
-		  @Override
-		  public void onServiceConnected(ComponentName name, IBinder service) {
-		    Log.i("KDroid", "Service connection established");
-		 
-		    api = KDroidServiceApi.Stub.asInterface(service);
-		    isBound=true;
-		  }
-		 
-		  @Override
-		  public void onServiceDisconnected(ComponentName name) {
-		    Log.i("KDroid", "Service connection closed");
-		    isBound=false;
-		  }
-		};
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.i("KDroid", "Service connection established");
+
+			api = KDroidServiceApi.Stub.asInterface(service);
+			isBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			Log.i("KDroid", "Service connection closed");
+			isBound = false;
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+
 		SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
-		
+
 		boolean startService = settings.getBoolean("serviceStartet", true);
-		
-		if(startService) {
+
+		if (startService) {
 
 			Intent intent = new Intent(KDroidService.class.getName());
 
@@ -81,47 +80,50 @@ public class KDroidActivity extends Activity {
 
 			bindService(intent, serviceConnection, 0);
 		}
-		
+
 		serviceCheckBox = (CheckBox) findViewById(R.id.serviceCheckBox);
-		
+
 		serviceToggleButton = (ToggleButton) findViewById(R.id.serviceToggleButton);
 		serviceToggleButton.setChecked(startService);
-		serviceToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		serviceToggleButton
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
-				saveSettings();
-				if(isChecked && !isBound) {
-					Intent intent = new Intent(KDroidService.class.getName());
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean isChecked) {
+						saveSettings();
+						if (isChecked && !isBound) {
+							Intent intent = new Intent(KDroidService.class
+									.getName());
 
-					startService(intent);
+							startService(intent);
 
-					bindService(intent, serviceConnection, 0);
-				}
-				else if(!isChecked) {
-					if(isBound) {
-						unbindService(serviceConnection);
+							bindService(intent, serviceConnection, 0);
+						} else if (!isChecked) {
+							if (isBound) {
+								unbindService(serviceConnection);
+							}
+							Intent intent = new Intent(KDroidService.class
+									.getName());
+
+							stopService(intent);
+
+							isBound = false;
+						}
 					}
-					Intent intent = new Intent(KDroidService.class.getName());
 
-					stopService(intent);
-					
-					isBound=false;
-				}
-			}
-
-		});
+				});
 
 		portEdit = (EditText) findViewById(R.id.portEdit);
 		portEdit.setText(Integer.toString(settings.getInt("port", 48564)));
-		
+
 		saveButton = (Button) findViewById(R.id.saveButton);
 		saveButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				saveSettings();
-				if(isBound) {
+				if (isBound) {
 					int port = Integer.parseInt(portEdit.getText().toString());
 					try {
 						api.setPort(port);
@@ -140,7 +142,7 @@ public class KDroidActivity extends Activity {
 			public void onClick(View v) {
 				portEdit.setText("48564");
 				saveSettings();
-				if(isBound) {
+				if (isBound) {
 					try {
 						api.setPort(48564);
 					} catch (RemoteException e) {
@@ -158,19 +160,18 @@ public class KDroidActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if(isBound) {
+		if (isBound) {
 			unbindService(serviceConnection);
 		}
 	}
-    
-    private void saveSettings() {
-        SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("port",Integer.parseInt(portEdit.getText().toString()));
-        editor.putBoolean("serviceOnBoot", serviceCheckBox.isChecked());
-        editor.putBoolean("serviceStartet", serviceToggleButton.isChecked());
-        editor.commit();
-    }
 
+	private void saveSettings() {
+		SharedPreferences settings = getSharedPreferences("KDroidSettings", 0);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putInt("port", Integer.parseInt(portEdit.getText().toString()));
+		editor.putBoolean("serviceOnBoot", serviceCheckBox.isChecked());
+		editor.putBoolean("serviceStartet", serviceToggleButton.isChecked());
+		editor.commit();
+	}
 
 }

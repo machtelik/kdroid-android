@@ -37,10 +37,11 @@ public class ContactHandler {
 	TCPServerPort tcpServerPort;
 	SMSHandler sms;
 
-	public ContactHandler(Context context, TCPServerPort tcpServerPort, SMSHandler sms) {
+	public ContactHandler(Context context, TCPServerPort tcpServerPort,
+			SMSHandler sms) {
 		this.tcpServerPort = tcpServerPort;
 		cr = context.getContentResolver();
-		this.sms=sms;
+		this.sms = sms;
 	}
 
 	public void returnAllContacts() {

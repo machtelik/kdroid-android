@@ -31,40 +31,41 @@ public class Dispatcher {
 	private SMSHandler sms;
 	private ContactHandler contact;
 	private TCPServerPort tcpServerPort;
-	
-	public Dispatcher(SMSHandler sms,ContactHandler contact, TCPServerPort tcpServerPort) {
-		this.sms=sms;
-		this.contact=contact;
+
+	public Dispatcher(SMSHandler sms, ContactHandler contact,
+			TCPServerPort tcpServerPort) {
+		this.sms = sms;
+		this.contact = contact;
 		this.tcpServerPort = tcpServerPort;
 	}
-	
+
 	public void dispatch(Packet packet) {
-		Log.d("KDroid", "Dispatching "+packet.getType());
-		if(packet.getType().compareTo("SMS")==0) {
+		Log.d("KDroid", "Dispatching " + packet.getType());
+		if (packet.getType().compareTo("SMS") == 0) {
 			SMSMessage message = packet.toSMSMessage();
-			if(message.Type.compareTo("Send")==0) { 
+			if (message.Type.compareTo("Send") == 0) {
 				sms.sendSMS(message);
 			}
 		}
-		if(packet.getType().compareTo("Request")==0) {
-			if(packet.getArguments().elementAt(0).compareTo("getAll")==0) {
+		if (packet.getType().compareTo("Request") == 0) {
+			if (packet.getArguments().elementAt(0).compareTo("getAll") == 0) {
 				Packet p = new Packet(Type.Status);
 				p.addArgument("AckGetAll");
 				tcpServerPort.send(p);
-				
+
 				contact.returnAllContacts();
 				sms.returnAllMessages();
-				
+
 				p = new Packet(Type.Status);
 				p.addArgument("DoneGetAll");
 				tcpServerPort.send(p);
 			}
 		}
-		
+
 		Packet p = new Packet(Type.Status);
 		p.addArgument("end");
 		tcpServerPort.send(p);
-		Log.d("KDroid","End");
+		Log.d("KDroid", "End");
 	}
-	
+
 }
