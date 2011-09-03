@@ -27,12 +27,12 @@ public class TCPClientPort extends TCPPort {
 	private Socket clientSocket = null;
 
 	public TCPClientPort(int Port) {
-		port = Port + 1;
+		port = Port;
 	}
 
 	@Override
 	public void setPort(int port) {
-		this.port = port + 1;
+		this.port = port;
 		if (clientSocket != null) {
 			try {
 				clientSocket.close();
@@ -54,7 +54,7 @@ public class TCPClientPort extends TCPPort {
 	}
 
 	private boolean connect() {
-		if (address != null) {
+		if (address != null && !address.isLoopbackAddress()) {
 			try {
 				clientSocket = new Socket(address, port);
 				out = clientSocket.getOutputStream();
