@@ -108,14 +108,7 @@ public class SMSHandler {
 			public void onReceive(Context arg0, Intent arg1) {
 				switch (getResultCode()) {
 				case Activity.RESULT_OK:
-					ContentValues values = new ContentValues();
-					values.put("address", address);
-					values.put("date", time);
-					values.put("read", 1);
-					values.put("status", -1);
-					values.put("type", 2);
-					values.put("body", body);
-					cr.insert(Uri.parse("content://sms"), values);
+					saveSendSMS(address, body, time);
 					Packet packet = new Packet(Type.Status);
 					packet.addArgument("SMSSend");
 					tcpClientPort.send(packet);
@@ -145,6 +138,17 @@ public class SMSHandler {
 
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(address, null, body, pi, null);
+	}
+
+	public void saveSendSMS(String address, String body, String time) {
+		ContentValues values = new ContentValues();
+		values.put("address", address);
+		values.put("date", time);
+		values.put("read", 1);
+		values.put("status", -1);
+		values.put("type", 2);
+		values.put("body", body);
+		cr.insert(Uri.parse("content://sms"), values);
 	}
 
 	public void returnAllMessages() {
