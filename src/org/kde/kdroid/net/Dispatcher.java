@@ -42,7 +42,9 @@ public class Dispatcher {
 		Log.d("KDroid", "Dispatching "+packet.getType());
 		if(packet.getType().compareTo("SMS")==0) {
 			SMSMessage message = packet.toSMSMessage();
-			sms.sendSMS(message);
+			if(message.Type.compareTo("Send")==0) { 
+				sms.sendSMS(message);
+			}
 		}
 		if(packet.getType().compareTo("Request")==0) {
 			if(packet.getArguments().elementAt(0).compareTo("getAll")==0) {
