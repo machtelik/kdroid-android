@@ -68,8 +68,7 @@ public class Dispatcher {
 		}
 
 		if (packet.getType().compareTo("Status") == 0) {
-			SMSMessage message = packet.toSMSMessage();
-			if (message.Type.compareTo("connectionTest") == 0) {
+			if (packet.getArguments().elementAt(0).compareTo("connectionTest") == 0) {
 				Packet p = new Packet(Type.Status);
 				p.addArgument("connectionSuccessful");
 				tcpClientPort.send(p);
