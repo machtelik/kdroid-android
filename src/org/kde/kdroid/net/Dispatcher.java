@@ -48,6 +48,7 @@ public class Dispatcher {
 			if (message.Type.compareTo("Send") == 0) {
 				sms.sendSMS(message);
 				endServerConnection();
+				return;
 			}
 		}
 		if (packet.getType().compareTo("Request") == 0) {
@@ -64,16 +65,21 @@ public class Dispatcher {
 				tcpServerPort.send(p);
 
 				endServerConnection();
+				return;
 			}
 		}
 
 		if (packet.getType().compareTo("Status") == 0) {
 			if (packet.getArguments().elementAt(0).compareTo("connectionTest") == 0) {
+				endServerConnection();
+				Log.d("KDroid", "Connection Test");
 				Packet p = new Packet(Type.Status);
 				p.addArgument("connectionSuccessful");
 				tcpClientPort.send(p);
+				return;
 			}
 		}
+		Log.d("KDroid", "Unknown Packet");
 	}
 
 	private void endServerConnection() {
