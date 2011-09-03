@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">KDroid</string>
     <string name="DefaultPort">48564</string>
+    <string name="startedText">Startet</string>
+    <string name="stoppedText">Stopped</string>
+    <string name="portLabel">Port:</string>
+    <string name="serviceLabel">Service:</string>
+    <string name="applyButtonText">Apply</string>
+    <string name="defaultButtonText">Default</string>
 </resources>

@@ -117,7 +117,7 @@ public class KDroidActivity extends Activity {
 		portEdit = (EditText) findViewById(R.id.portEdit);
 		portEdit.setText(Integer.toString(settings.getInt("port", 48564)));
 
-		saveButton = (Button) findViewById(R.id.saveButton);
+		saveButton = (Button) findViewById(R.id.applyButton);
 		saveButton.setOnClickListener(new OnClickListener() {
 
 			@Override

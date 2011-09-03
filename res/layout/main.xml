@@ -2,26 +2,73 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:weightSum="1" android:orientation="vertical">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/portLayout">
-        <TextView android:text="Port:" android:id="@+id/textView1" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content"></TextView>
-        <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/portEdit" android:layout_weight="1" android:text="@string/DefaultPort">
-            <requestFocus></requestFocus>
-        </EditText>
-        <Button android:text="Save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/saveButton"></Button>
-        <Button android:text="Default" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/defaultButton"></Button>
-    </LinearLayout>
-    <TableLayout android:layout_width="match_parent" android:id="@+id/tableLayout1" android:layout_height="142dp">
-        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow1" android:layout_height="wrap_content">
-            <TextView android:text="Service:" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView2" android:layout_height="wrap_content"></TextView>
-            <ToggleButton android:text="Service" android:id="@+id/serviceToggleButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></ToggleButton>
-            <CheckBox android:text="Start on Boot" android:id="@+id/serviceCheckBox" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"></CheckBox>
-        </TableRow>
-        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow2" android:layout_height="wrap_content"></TableRow>
-        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow3" android:layout_height="wrap_content"></TableRow>
-        <TableRow android:layout_width="wrap_content" android:id="@+id/tableRow4" android:layout_height="wrap_content"></TableRow>
-    </TableLayout>
-    <FrameLayout android:layout_width="match_parent" android:id="@+id/frameLayout1" android:layout_height="wrap_content" android:layout_gravity="center">
-        <ImageView android:layout_width="wrap_content" android:src="@drawable/kde" android:id="@+id/imageView1" android:layout_height="wrap_content" android:layout_gravity="center"></ImageView>
-    </FrameLayout>
+    android:weightSum="1"
+    android:orientation="vertical">
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="fill_parent"  
+    	android:layout_height="70dp">
+    	<TextView
+        	android:id="@+id/serviceLabel"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:text="@string/serviceLabel"/>
+		<ToggleButton
+			android:text="Service"
+			android:id="@+id/serviceToggleButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toLeftOf="@+id/serviceCheckBox"
+	        android:layout_alignTop="@+id/serviceCheckBox"
+	        android:textOff="@string/stoppedText"
+	        android:textOn="@string/startedText"
+			android:checked="true"/>
+		<CheckBox
+			android:text="Start on Boot"
+			android:id="@+id/serviceCheckBox"
+			android:layout_below="@id/serviceLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"
+			android:checked="true"/>
+	</RelativeLayout>
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="fill_parent"
+    	 android:layout_height="90dp" >
+    	<TextView
+        	android:id="@+id/portLabel"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+        	android:text="@string/portLabel"/>
+    	<EditText
+        	android:id="@+id/portEdit"
+        	android:layout_width="fill_parent"
+        	android:layout_height="wrap_content"
+	        android:background="@android:drawable/editbox_background"
+	        android:layout_below="@id/portLabel"
+	        android:text="@string/DefaultPort"/>
+	    <Button
+	        android:id="@+id/applyButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/portEdit"
+	        android:layout_alignParentRight="true"
+	        android:layout_marginLeft="10dip"
+	        android:text="@string/applyButtonText" />
+	    <Button
+	    	android:id="@+id/defaultButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_toLeftOf="@id/applyButton"
+	        android:layout_alignTop="@id/applyButton"
+	        android:text="@string/defaultButtonText" />
+	</RelativeLayout>
+	<ImageView
+	android:layout_width="wrap_content"
+	android:src="@drawable/kde"
+	android:id="@+id/imageView1"
+	android:layout_marginTop="20dip"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"/>
 </LinearLayout>
