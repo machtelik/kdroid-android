@@ -81,11 +81,11 @@ public class SMSHandler {
 		}
 	};
 
-	public SMSHandler(Context Context, TCPServerPort tcpServerPort,
+	public SMSHandler(Context context, TCPServerPort tcpServerPort,
 			TCPClientPort tcpClientPort) {
 		this.tcpServerPort = tcpServerPort;
 		this.tcpClientPort = tcpClientPort;
-		this.context = Context;
+		this.context = context;
 		cr = context.getContentResolver();
 		context.registerReceiver(smsReciever, new IntentFilter(SMS_RECEIVED));
 	}
@@ -99,9 +99,6 @@ public class SMSHandler {
 		final String address = message.Address;
 		final String body = message.Body;
 		final String time = message.Time;
-
-		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(
-				"SMS_SENT"), 0);
 
 		context.registerReceiver(new BroadcastReceiver() {
 			@Override
@@ -136,8 +133,16 @@ public class SMSHandler {
 			}
 		}, new IntentFilter("SMS_SENT"));
 
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(
+				"SMS_SENT"), 0);
+
 		SmsManager sms = SmsManager.getDefault();
-		sms.sendTextMessage(address, null, body, pi, null);
+		try {
+			sms.sendTextMessage(address, null, body, pi, null);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			Log.d("KDroid", "Why??????");
+		}
 	}
 
 	public void saveSendSMS(String address, String body, String time) {

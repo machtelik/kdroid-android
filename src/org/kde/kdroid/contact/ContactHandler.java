@@ -21,7 +21,6 @@ package org.kde.kdroid.contact;
 
 import org.kde.kdroid.net.Packet;
 import org.kde.kdroid.net.TCPServerPort;
-import org.kde.kdroid.sms.SMSHandler;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -35,13 +34,10 @@ public class ContactHandler {
 	ContentResolver cr;
 
 	TCPServerPort tcpServerPort;
-	SMSHandler sms;
 
-	public ContactHandler(Context context, TCPServerPort tcpServerPort,
-			SMSHandler sms) {
+	public ContactHandler(Context context, TCPServerPort tcpServerPort) {
 		this.tcpServerPort = tcpServerPort;
 		cr = context.getContentResolver();
-		this.sms = sms;
 	}
 
 	public void returnAllContacts() {
