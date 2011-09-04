@@ -90,7 +90,12 @@ public class Packet {
 	}
 
 	public Packet(byte[] data) {
-		String dat = new String(data);
+		String dat = null;
+		try {
+			dat = new String(data, "UTF8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		String[] list = dat.split(separator);
 		type = list[0];
 		for (int i = 1; i < list.length - 1; ++i) {

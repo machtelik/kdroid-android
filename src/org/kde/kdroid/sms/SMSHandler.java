@@ -105,6 +105,7 @@ public class SMSHandler {
 			public void onReceive(Context arg0, Intent arg1) {
 				switch (getResultCode()) {
 				case Activity.RESULT_OK:
+					Log.d("KDroid", "Message sent");
 					saveSendSMS(address, body, time);
 					Packet packet = new Packet(Type.Status);
 					packet.addArgument("SMSSend");

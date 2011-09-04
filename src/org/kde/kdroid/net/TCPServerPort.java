@@ -49,7 +49,7 @@ public class TCPServerPort extends TCPPort implements Runnable {
 				address = s.getInetAddress();
 				Log.d("KDroid", "Accept");
 				Reader in = new BufferedReader(new InputStreamReader(
-						s.getInputStream(), "UTF8"));
+						s.getInputStream()));
 				out = s.getOutputStream();
 				byte[] bytes = new byte[2048];
 				int ch;

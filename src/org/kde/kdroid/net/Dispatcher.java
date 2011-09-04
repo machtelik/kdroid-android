@@ -72,9 +72,11 @@ public class Dispatcher {
 		if (packet.getType().compareTo("Status") == 0) {
 			if (packet.getArguments().elementAt(0).compareTo("connectionTest") == 0) {
 				endServerConnection();
-				Log.d("KDroid", "Connection Test");
+				Log.d("KDroid", "Connection Test: "
+						+ packet.getArguments().elementAt(1));
 				Packet p = new Packet(Type.Status);
 				p.addArgument("connectionSuccessful");
+				p.addArgument(packet.getArguments().elementAt(1));
 				tcpClientPort.send(p);
 				return;
 			}
